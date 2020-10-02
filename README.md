@@ -17,7 +17,7 @@
 
 | Description | Endpoint URL |
 | ------ | ------ |
-| API | [http://localhost/interpreter/entrypoint.php][PlDb] |
+| API | http://localhost/interpreter/entrypoint.php|
 
 >You post the sample json request below to the above API endpoint
 
