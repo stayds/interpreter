@@ -10,7 +10,7 @@
 
   - entrypoint.php 
   - Interpreter.php
-  - Bookmakerinterface
+  - BookmakerInterface
   - Bookmaker classes that implements the bookermakerinterface
   
 # API Call
