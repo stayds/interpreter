@@ -6,7 +6,7 @@ include_once './interfaces/BookmakerInterface.php';
 class Accessbet implements BookmakerInterface {
 
     /**
-     * 
+     * @param $url
      */
     public $url;
 

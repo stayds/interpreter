@@ -6,7 +6,7 @@ include_once './interfaces/BookmakerInterface.php';
 class Betking implements BookmakerInterface {
 
     /**
-     * 
+     * @param $url
      */
     public $url;
 
@@ -18,7 +18,7 @@ class Betking implements BookmakerInterface {
 
     /**
      * Method call to bookmaker API
-     * @param $code booked game code from the homebookmaker
+     * @param $code $booked game code from the homebookmaker
      */
     public function callBookMaker($code) {
         // TODO implement here

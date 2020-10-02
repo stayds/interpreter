@@ -6,7 +6,7 @@ include_once './interfaces/BookmakerInterface.php';
 class Onexbet implements BookmakerInterface {
 
     /**
-     * 
+     * @param $url
      */
     public $url;
 
@@ -18,7 +18,8 @@ class Onexbet implements BookmakerInterface {
 
     /**
      * Method call to bookmaker API
-     * @param $code booked game code from the homebookmaker
+     * @param $code
+     * booked game code from the homebookmaker
      */
     public function callBookMaker($code) {
         // TODO implement here
@@ -26,12 +27,16 @@ class Onexbet implements BookmakerInterface {
 
     /**
      * Method call to parse the response from the bookmaker API
-     * @param $response variable that stores the response from homebookmaker call
-     * @param $homebookmaker variable that stores the home or intiating bookmaker name
-     * @param $awaybookmaker variable that stores the away or destination bookmaker name
+     * @param $response
+     * variable that stores the response from homebookmaker call
+     * @param $homebookmaker
+     * variable that stores the home or intiating bookmaker name
+     * @param $awaybookmaker
+     * variable that stores the away or destination bookmaker name
      */
     public function responseParser($response, $homebookmaker, $awaybookmaker) {
         // TODO implement here
+
     }
 
 }

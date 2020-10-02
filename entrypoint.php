@@ -13,6 +13,7 @@ if(class_exists($homeBookmaker)){
     $homeBokmaker = new $homeBookmaker();
     $interpreteCode = new Interpreter($code, $homeBookmaker,$awayBookmaker);
 
+    header('Content-Type: application/json');
     echo $interpreteCode->interPrete($homeBokmaker);
 }else{
     echo "bookmaker does not exist";
