@@ -61,10 +61,10 @@ class Interpreter
         $this->awaybookmaker = $awayBookmaker;
         $this->url = $url;
     }
-    public function interprete(bookmakerInterface $homeBokmaker)
+    public function interprete(bookmakerInterface $homeBookmaker)
     {
-        $this->response = $homeBokmaker->callBookMaker($this->code, $this->url);
-        return $homeBokmaker->responseParser($this->response, $this->homebookmaker, $this->awaybookmaker);
+        $this->response = $homeBookmaker->callBookMaker($this->code, $this->url);
+        return $homeBookmaker->responseParser($this->response, $this->homebookmaker, $this->awaybookmaker);
     }
 }
 
