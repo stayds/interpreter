@@ -11,7 +11,7 @@ interface BookmakerInterface {
      * @param string $code booked game code from the homebookmaker
      * @return array
      */
-    public function callBookMaker(string $code):array;
+    public function callBookMaker($code);
 
     /**
      * Method call to parse the response from the bookmaker API
@@ -20,6 +20,6 @@ interface BookmakerInterface {
      * @param string $awaybookmaker variable that stores the away or destination bookmaker name
      * @return array
      */
-    public function responseParser(array $response, string $homebookmaker, string $awaybookmaker): array;
+    public function responseParser($response, $homebookmaker, $awaybookmaker);
 
 }
