@@ -128,7 +128,8 @@ class Onexbet implements BookmakerInterface {
             return $team[$first].":".$team[$second];
         }
         elseif ($gametype == "Both Teams To Score" || $gametype == "Even/Odd" || $gametype == "Red Card"
-            || $gametype == "Own Goal" || $gametype == "Penalty Awarded And Sending Off" || $gametype == "Goal After Corner")
+            || $gametype == "Own Goal" || $gametype == "Multi Goal" || $gametype == "Goal In Both Halves" || $gametype == "Penalty Awarded" ||
+            $gametype == "Penalty Awarded And Sending Off" || $gametype == "Goal After Corner" || $gametype == "Draw In At Least One Half")
         {
             $data = explode("-", $market);
             $item = trim(strtolower($data[count($data)-1]));
@@ -165,7 +166,7 @@ class Onexbet implements BookmakerInterface {
             $out = str_replace(")","",str_replace  ("(", "", $data[2]));
             return $out.":".$team[$data[3]];
         }
-        elseif ($gametype == "Multi Goal"){
+        elseif ($gametype == "Team 2, Multi Goal" || $gametype =="Team 2, Multi Goal"){
             $team = [$home=>'1',$away=>'2'];
             if(strpos($market,$home) || strpos($market,$away)) {
                 return $team[$home];
@@ -202,12 +203,30 @@ class Onexbet implements BookmakerInterface {
             $data = explode("HT-FT", $market);
             return $combination[trim($data[1])];
         }
+        elseif ($gametype == "Goal Interval - No" || $gametype == "Goal Interval - Yes"){
+            $team = [$home=>1,$away=>2];
+            $data = explode(" ",$market);
+            return $team[$data[0]].":".$data[4]."*".$data[6].":".$data[count($data)-1];
+        }
+
+        elseif ($gametype == 'Number In The Score' || $gametype == 'Goal Up To Minute'){
+            $data = explode(' ', $market);
+            if(isset($data[7]) && is_numeric($data[7])){
+                return $data[1].":".$data[7].":".$data[count($data)-1];
+            }
+            return $data[1].":".$data[count($market)-1];
+        }
+
         elseif ($gametype == "Team 2, Result + Total" || $gametype == "Team 1, Result + Total"){
             $data = explode('And', $market);
             $team = (strpos(trim($data[0]),$home) == 0) ? 1 : 2;
             $newdata = explode("-",$data[1]);
             $ou = (strpos(trim($newdata[0]), ">")) ? "Over" : "Under";
             return $team.":".$ou."".$param."^".trim($newdata[1]);
+        }
+        elseif ($gametype == "Race To"){
+            $outcome = [$home => 1, $away => 2, 'neither' => 'none'];
+            $data = explode(' ', $market);
         }
 
         else{
@@ -226,6 +245,8 @@ class Onexbet implements BookmakerInterface {
             "Multi Goal"=>"Multi Goal",
             "European Handicap"=>"European Handicap",
             "Double Chance"=>"dc",
+            "Fouls"=>"Foul",
+            "Draw In At Least One Half"=>"Draw In At Least One Half",
             "Both Teams To Score"=>"bts",
             "Draw in Both halves"=>"Draw in Both halves",
             "Even/Odd"=>"even/odd",
@@ -236,7 +257,6 @@ class Onexbet implements BookmakerInterface {
             "HT-FT"=>"HT-FT",
             "Half/Half"=>"Half/Half",
             "Penalty Awarded And Sending Off"=>"penalty/sending off",
-            "Number In The Score"=>"Number in score",
             "Total"=>"OU",
             "Total 1"=>"Individual Home OU",
             "Total 2"=>"Individual Away OU",
@@ -249,6 +269,11 @@ class Onexbet implements BookmakerInterface {
             "To Qualify" => "To Qualify",
             "Team 2, Result + Total" => "Away Win + OU",
             "Team 1, Result + Total" => "Home Win + OU",
+            "Goal Up To Minute"=>"Goal Up To Minute",
+            "Goal Interval - No"=>"Goal Interval",
+            "Goal Interval - Yes"=>"Goal Interval",
+            "Goal In Both Halves"=> "Goal In Both Halves",
+            "Penalty Awarded"=> "Penalty Awarded",
         ];
 
         return $types[$gametype];
