@@ -69,13 +69,13 @@ class Onexbet implements BookmakerInterface {
         if (!is_null($response)) {
 
             foreach ($response as $key => $item) {
-
+                $outcomes = $this->outcome($item['GroupName'], $item['MarketName'], $item['Opp1'], $item['Opp2'], $item['Param']);
                 $data[$homebookmaker][$awaybookmaker][] = [
                     'league' => $item['Liga'],
                     'home' => $item['Opp1'],
                     'away' => $item['Opp2'],
                     'gametype' => $this->gametype($item['GroupName']),
-                    'outcome' => $this->outcome($item['GroupName'], $item['MarketName'], $item['Opp1'], $item['Opp2'], $item['Param']),
+                    'outcome' => strtolower($outcomes),
                     'odd' => $item['Coef'],
                     'ovalue' => ($item['Param'] != 0) ? $item['Param'] : null,
                     'identifier' => '',
@@ -129,7 +129,10 @@ class Onexbet implements BookmakerInterface {
         }
         elseif ($gametype == "Both Teams To Score" || $gametype == "Even/Odd" || $gametype == "Red Card"
             || $gametype == "Own Goal" || $gametype == "Multi Goal" || $gametype == "Goal In Both Halves" || $gametype == "Penalty Awarded" ||
-            $gametype == "Penalty Awarded And Sending Off" || $gametype == "Goal After Corner" || $gametype == "Draw In At Least One Half")
+            $gametype == "Penalty Awarded And Sending Off" || $gametype == "Goal After Corner" || $gametype == "Draw In At Least One Half"
+            || $gametype == "Team 2 To Win Either Half" || $gametype == "Team 1 To Win Either Half" || $gametype == "Both Halves To Be Won By Different Teams"
+            || $gametype == "Score Draw" || $gametype == "Draw In Both Halves" || $gametype == "Total Goal Minutes"
+        )
         {
             $data = explode("-", $market);
             $item = trim(strtolower($data[count($data)-1]));
@@ -224,9 +227,58 @@ class Onexbet implements BookmakerInterface {
             $ou = (strpos(trim($newdata[0]), ">")) ? "Over" : "Under";
             return $team.":".$ou."".$param."^".trim($newdata[1]);
         }
+        elseif($gametype == "Draw + Total"){
+            $data = explode(' ', $market);
+            $ou = ($data[3] === ">") ? "Over" : "Under";
+            return $ou."".$param."^".$data[6];
+        }
+        elseif($gametype == "Double Chance + Total"){
+            $data = explode(' ', $market);
+            $ou = ($data[3] === ">") ? "Over" : "Under";
+            return $ou."".$param."^".$data[6];
+        }
+        elseif($gametype == "Scores In Each Half"){
+            $data = ["1st Half > 2nd Half"=>"1>2","1st Half = 2nd Half"=>"1=2","1st Half < 2nd Half"=>'1<2'];
+            return $data[$market];
+        }
+        elseif($gametype == "3Way Total"){
+            $data = explode(" ", $market);
+            return $data[1].":".$data[2];
+        }
+        elseif($gametype == "Score During The Match"){
+            $data = explode(" ", $market);
+            return $data[1].":".$data[count($data)-1];
+        }
+        elseif($gametype == "Individual 3Way Total 1" || $gametype == "Individual 3Way Total 2"){
+            $data = explode(" ", $market);
+            return $data[count($data)-2].":".$data[count($data)-1];
+        }
+        elseif ($gametype == "Individual Total 1 Even/Odd" || $gametype == "Individual Total 2 Even/Odd"){
+            $team = [$home=>1,$away=>2];
+            $data = explode("Total",$market);
+            return $team[$data[0]].":".$data[1];
+
+        }
         elseif ($gametype == "Race To"){
             $outcome = [$home => 1, $away => 2, 'neither' => 'none'];
             $data = explode(' ', $market);
+        } elseif ($gametype == "To Keep Clean Sheet"){
+            $outcome = [$home => 1, $away => 2, 'neither' => 'none'];
+            $data = explode(' ', $market);
+        }
+        elseif ($gametype == "Team Wins"){
+            $team = [$home=>1,$away=>2];
+            $data = explode(" ",$market);
+            return $team[$data[0]];
+        }
+        elseif ($gametype == "Team Goals"){
+            $outcome = ["Only $home To Score"=>1,"Both Teams To Score"=>"both",
+                "Only $away To Score"=>2,"No Goals"=>"no"];
+            return $outcome[$market];
+        }elseif ($gametype == "Team 1 To Score Penalty" || $gametype=="Team 1 To Score Penalty"){
+            $outcome = ["Only $home To Score"=>1,"Both Teams To Score"=>"both",
+                "Only $away To Score"=>2,"No Goals"=>"no"];
+            return $outcome[$market];
         }
 
         else{
@@ -255,25 +307,46 @@ class Onexbet implements BookmakerInterface {
             "Goal After Corner"=>"Goal After Corner",
             "Goal In Half"=>"Goal In Half",
             "HT-FT"=>"HT-FT",
+            "Total Goal Minutes"=>"Total Goal Minutes",
             "Half/Half"=>"Half/Half",
             "Penalty Awarded And Sending Off"=>"penalty/sending off",
-            "Total"=>"OU",
-            "Total 1"=>"Individual Home OU",
-            "Total 2"=>"Individual Away OU",
-            "Asian Total"=>"Asian OU",
-            "Asian Team Total 1"=>"Asian Home Team OU",
-            "Asian Team Total 2"=>"Asian Away Team OU",
+            "Total"=>"O/U",
+            "Team 1 To Score Penalty"=>"Home To Score Penalty",
+            "Team 2 To Score Penalty"=>"Away To Score Penalty",
+            "Total 1"=>"Individual Home O/U",
+            "Total 2"=>"Individual Away O/U",
+            "Asian Total"=>"Asian O/U",
+            "Asian Team Total 1"=>"Asian Home Team O/U",
+            "Asian Team Total 2"=>"Asian Away Team O/U",
             "Correct Score (17Way)"=>"cs",
             "How Goal Will Be Scored"=>"How Goal Will Be Scored",
             "Number In The Score"=>"Number In The Score",
             "To Qualify" => "To Qualify",
-            "Team 2, Result + Total" => "Away Win + OU",
-            "Team 1, Result + Total" => "Home Win + OU",
+            "Team 2, Result + Total" => "Away Win + O/U",
+            "Team 1, Result + Total" => "Home Win + O/U",
+            "Draw + Total" => "Draw + O/U",
+            "Team 2 To Win Either Half" => "Away To Win Either Half",
+            "Team 1 To Win Either Half" => "Home To Win Either Half",
             "Goal Up To Minute"=>"Goal Up To Minute",
             "Goal Interval - No"=>"Goal Interval",
             "Goal Interval - Yes"=>"Goal Interval",
             "Goal In Both Halves"=> "Goal In Both Halves",
             "Penalty Awarded"=> "Penalty Awarded",
+            "Scores In Each Half"=> "Scores In Each Half",
+            "3Way Total"=> "3Way O/U",
+            "Individual 3Way Total 1"=> "Home 3Way O/U",
+            "Individual 3Way Total 2"=> "Away 3Way O/U",
+            "Individual Total 2 Even/Odd"=> "Away O/U Even/Odd",
+            "Individual Total 1 Even/Odd"=> "Home O/U Even/Odd",
+            "Team Wins"=> "Team Wins",
+            "Team Goals"=> "Team Goals",
+            "Last Goal Time"=> "Last Goal Time",
+            "Draw + Total"=> "Draw + O/U",
+            "Score Draw"=> "Score Draw",
+            "Score During The Match"=> "Score During The Match",
+            "Double Chance + Total"=> "Double Chance + O/U",
+            "To Keep Clean Sheet"=> "To Keep Clean Sheet",
+            "Both Halves To Be Won By Different Teams"=> "Both Halves To Be Won By Different Teams",
         ];
 
         return $types[$gametype];
