@@ -270,7 +270,7 @@ class Onexbet implements BookmakerInterface {
             $datr = explode('or', $data[0]);
             $end = count($datr);
             $outcome = '';
-            $ou = (strpos($data[1], "Over") > 0) ? "Over" : "Under";
+            $ou = (strpos($data[1], "Yes") > 0) ? "yes" : "no";
 
             foreach($datr as $key => $list){
                 ++$key;
@@ -281,7 +281,7 @@ class Onexbet implements BookmakerInterface {
                 $outcome .= $teams[trim($list)]."/";
             }
 
-            return $outcome.":".$ou."".$param;
+            return $outcome.":".$ou;
         }
         elseif($gametype == "Scores In Each Half"){
             $data = ["1st Half > 2nd Half"=>"1h","1st Half = 2nd Half"=>"e","1st Half < 2nd Half"=>'2h'];
