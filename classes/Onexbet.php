@@ -116,7 +116,7 @@ class Onexbet implements BookmakerInterface {
                     $outcome .=$team[$list];
                 }
             }
-            $outcome = ($outcome == "2x" || "1x")? strrev($outcome) : $outcome;
+            $outcome = ($outcome == "2x" || $outcome == "21")? strrev($outcome) : $outcome;
             return $outcome;
         }
         elseif ($gametype == "Total" || $gametype == "Asian Total" || $gametype =="Total. 1 Half" || $gametype =="Total. 2 Half"){
