@@ -85,7 +85,7 @@ class Onexbet implements BookmakerInterface {
                 $data[$homebookmaker][$awaybookmaker][] = [
                     'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
                     'away' => (isset($cnames['error'])) ? $item['Opp2'] : $cnames['awayclub'],
-                    'gametype' => $gt,
+                    'type' => $gt,
                     "bmbtype"=> $games,
                     'outcome' => strtolower($outcomes),
                     'odd' => $item['Coef'],
@@ -403,6 +403,7 @@ class Onexbet implements BookmakerInterface {
 
     private function clubnames($hbookmakers,$abookmakers,$home,$away){
         $url = "http://upload.betconverter.com/system/model/clubs.php";
+
         curl_setopt_array($this->connect,[
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
