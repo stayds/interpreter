@@ -162,7 +162,8 @@ class Onexbet implements BookmakerInterface {
              * first occurrence of the team is the marketname string
             */
             $option = (strpos($market,$home)) ? $team[$home] : $team[$away];
-
+            $param = (is_int($param)) ? sprintf("%.1f", $param) : $param;
+            echo $param;
             $param = ($param > 0) ? "+".$param : $param;
             return $option.":".$param;
 
