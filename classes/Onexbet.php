@@ -163,7 +163,6 @@ class Onexbet implements BookmakerInterface {
             */
             $option = (strpos($market,$home)) ? $team[$home] : $team[$away];
             $param = (is_int($param)) ? sprintf("%.1f", $param) : $param;
-            echo $param;
             $param = ($param > 0) ? "+".$param : $param;
             return $option.":".$param;
 
