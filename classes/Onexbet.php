@@ -192,7 +192,8 @@ class Onexbet implements BookmakerInterface {
             $team = [$home=>'1',$away=>'2'];
             return $team[$data[0]];
         }
-        elseif ($gametype == "Correct Score (17Way)" || $gametype == "Correct Score (17way). 1 Half" || $gametype =="Correct Score (17way). 2 Half"){
+        elseif ($gametype == "Correct Score (17Way)" || $gametype == "Correct Score (17way). 1 Half" || $gametype =="Correct Score (17way). 2 Half"|| $gametype == "Correct Score"
+        || $gametype == "Correct Score. 1 Half" || $gametype == "Correct Score. 2 Half"){
             $outcome = explode(' ',$market);
             return str_replace("-",":",$outcome[2]);
         }
