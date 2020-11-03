@@ -10,6 +10,7 @@ class Onexbet implements BookmakerInterface {
      */
     public $url = "https://1xbet.ng/LiveUtil/GetCoupon";
     public $connect;
+    public $code;
 
     /**
      * Default constructor
@@ -24,7 +25,7 @@ class Onexbet implements BookmakerInterface {
      * booked game code from the homebookmaker
      */
     public function callBookMaker($code) {
-
+        $this->code = $code;
         curl_setopt_array($this->connect,[
             CURLOPT_URL => $this->url,
             CURLOPT_RETURNTRANSFER => true,
@@ -34,7 +35,7 @@ class Onexbet implements BookmakerInterface {
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{"Guid":"'.$code.'","Lng":"en","partner":159}',
+            CURLOPT_POSTFIELDS => '{"Guid":"'.$this->code.'","Lng":"en","partner":159}',
             CURLOPT_HTTPHEADER => array(
                 "Accept:  application/json, text/plain, */*",
                 "Accept-Language:  en-US,en;q=0.5",
@@ -77,10 +78,10 @@ class Onexbet implements BookmakerInterface {
                 //Calls method that querries the  Games types API
                 $games = ($item['PeriodName'] != "") ? $item['GroupName'].". ".$item['PeriodName'] : $item['GroupName'];
 
-                $gt = $this->gamestypes(strtolower(trim($games)),$homebookmaker,$awaybookmaker);
+                $gt = $this->gamestypes(strtolower(trim($games)),$homebookmaker,$awaybookmaker,$this->code);
 
                 //Calls method that queries the Club names API
-                $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2']);
+                $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$this->code);
 
                 $data[$homebookmaker][$awaybookmaker][] = [
                     'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
@@ -162,7 +163,7 @@ class Onexbet implements BookmakerInterface {
              * first occurrence of the team is the marketname string
             */
             $option = (strpos($market,$home)) ? $team[$home] : $team[$away];
-            $param = (is_int($param)) ? sprintf("%.1f", $param) : $param;
+            //$param = (is_int($param)) ? sprintf("%.1f", $param) : $param;
             $param = ($param > 0) ? "+".$param : $param;
             return $option.":".$param;
 
@@ -368,7 +369,7 @@ class Onexbet implements BookmakerInterface {
 
     }
 
-    private function gamestypes($games, $home, $away){
+    private function gamestypes($games, $home, $away, $code){
 
         $api = "http://upload.betconverter.com/system/model/bookmakers.php";
 
@@ -381,7 +382,7 @@ class Onexbet implements BookmakerInterface {
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{"homemaker":"'.$home.'","type":"'.$games.'","awaymaker":"'.$away.'"}',
+            CURLOPT_POSTFIELDS => '{"homemaker":"'.$home.'","type":"'.$games.'","awaymaker":"'.$away.'","code":"'.$code.'"}',
             CURLOPT_HTTPHEADER => array(
                 "Accept:  application/json, text/plain, */*",
                 "Accept-Language:  en-US,en;q=0.5",
@@ -402,7 +403,7 @@ class Onexbet implements BookmakerInterface {
         }
     }
 
-    private function clubnames($hbookmakers,$abookmakers,$home,$away){
+    private function clubnames($hbookmakers,$abookmakers,$home,$away,$code){
         $url = "http://upload.betconverter.com/system/model/clubs.php";
 
         curl_setopt_array($this->connect,[
@@ -418,7 +419,8 @@ class Onexbet implements BookmakerInterface {
                     "homemaker" : "'.$hbookmakers.'",
                     "homeclub" : "'.$home.'",
                     "awayclub" : "'.$away.'",
-                    "awaymaker" : "'.$abookmakers.'"
+                    "awaymaker" : "'.$abookmakers.'",
+                    "code" : "'.$code.'"
                 }',
         ]);
         $response = curl_exec($this->connect);
