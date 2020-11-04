@@ -46,7 +46,7 @@ class Interpreter {
     public function interPrete(BookmakerInterface $homebookmaker) {
         // TODO implement here
         $this->response = $homebookmaker->callBookMaker($this->code);
-        return $homebookmaker->responseParser($this->response, $this->homebookmaker, $this->awaybookmaker,$this->code);
+        return $homebookmaker->responseParser($this->response, $this->homebookmaker, $this->awaybookmaker);
     }
 
 }

@@ -20,6 +20,6 @@ interface BookmakerInterface {
      * @param string $awaybookmaker variable that stores the away or destination bookmaker name
      * @return array
      */
-    public function responseParser($response, $homebookmaker, $awaybookmaker, $code);
+    public function responseParser($response, $homebookmaker, $awaybookmaker);
 
 }
