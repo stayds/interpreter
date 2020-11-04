@@ -25,7 +25,6 @@ class Onexbet implements BookmakerInterface {
      * booked game code from the homebookmaker
      */
     public function callBookMaker($code) {
-        $this->code = $code;
         curl_setopt_array($this->connect,[
             CURLOPT_URL => $this->url,
             CURLOPT_RETURNTRANSFER => true,
@@ -35,7 +34,7 @@ class Onexbet implements BookmakerInterface {
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{"Guid":"'.$this->code.'","Lng":"en","partner":159}',
+            CURLOPT_POSTFIELDS => '{"Guid":"'.$code.'","Lng":"en","partner":159}',
             CURLOPT_HTTPHEADER => array(
                 "Accept:  application/json, text/plain, */*",
                 "Accept-Language:  en-US,en;q=0.5",
@@ -64,7 +63,7 @@ class Onexbet implements BookmakerInterface {
      * variable that stores the away or destination bookmaker name
      */
 
-    public function responseParser($response, $homebookmaker, $awaybookmaker) {
+    public function responseParser($response, $homebookmaker, $awaybookmaker, $code) {
 
         $data = [];
 
@@ -78,10 +77,10 @@ class Onexbet implements BookmakerInterface {
                 //Calls method that querries the  Games types API
                 $games = ($item['PeriodName'] != "") ? $item['GroupName'].". ".$item['PeriodName'] : $item['GroupName'];
 
-                $gt = $this->gamestypes(strtolower(trim($games)),$homebookmaker,$awaybookmaker,$this->code);
+                $gt = $this->gamestypes(strtolower(trim($games)),$homebookmaker,$awaybookmaker,$code);
 
                 //Calls method that queries the Club names API
-                $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$this->code);
+                $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$code);
 
                 $data[$homebookmaker][$awaybookmaker][] = [
                     'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
