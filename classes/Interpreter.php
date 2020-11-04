@@ -39,14 +39,15 @@ class Interpreter {
 
     /**
      * The method recieves an instance of a bookmaker interface.
-     * Call the bookmaker API and 
+     * Call the bookmaker API and
      * parse the response
      * @param $BookmakerInterface homebookmaker
+     * @return array
      */
     public function interPrete(BookmakerInterface $homebookmaker) {
         // TODO implement here
         $this->response = $homebookmaker->callBookMaker($this->code);
-        return $homebookmaker->responseParser($this->response, $this->homebookmaker, $this->awaybookmaker);
+        return $homebookmaker->responseParser($this->response, $this->homebookmaker, $this->awaybookmaker, $this->code);
     }
 
 }
