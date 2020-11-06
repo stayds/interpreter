@@ -89,13 +89,14 @@ class Onexbet implements BookmakerInterface {
                     'away' => (isset($cnames['error'])) ? $item['Opp2'] : $cnames['awayclub'],
                     'type' => $gt,
                     "bmbtype"=> $games,
+                    "league"=> $item['Liga'],
                     'outcome' => strtolower($outcomes),
                     'odd' => $item['Coef'],
                     'ovalue' => ($item['Param'] != 0) ? $item['Param'] : null,
                 ];
             }
 
-            echo json_encode($data);
+            return json_encode($data);
         }
     }
 
