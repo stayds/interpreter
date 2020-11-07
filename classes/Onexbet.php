@@ -23,6 +23,7 @@ class Onexbet implements BookmakerInterface {
      * Method call to bookmaker API
      * @param $code
      * booked game code from the homebookmaker
+     * @return |null
      */
     public function callBookMaker($code) {
         $this->code = $code;
@@ -64,7 +65,7 @@ class Onexbet implements BookmakerInterface {
      * variable that stores the away or destination bookmaker name
      */
 
-    public function responseParser($response, $homebookmaker, $awaybookmaker) {
+    public function responseParser($response, $homebookmaker, $awaybookmaker, $code) {
 
         $data = [];
 
@@ -78,12 +79,9 @@ class Onexbet implements BookmakerInterface {
                 $outcomes = $this->outcome($gtype, $item['MarketName'], $item['Opp1'], $item['Opp2'], $item['Param']);
 
                 //Calls method that querries the  Games types API
-                //$games = ($item['PeriodName'] != "") ? $item['GroupName'].". ".$item['PeriodName'] : $item['GroupName'];
-
-                $gt = $this->gamestypes(strtolower(trim($gtype)),$homebookmaker,$awaybookmaker,$this->code);
+                //$games = ($item['PeriodName'] != "") ? $item['GroupName'].". ".$item['PeriodName'] : $item['GroupName'
 
                 //Calls method that queries the Club names API
-                $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$this->code);
 
                 $data[$homebookmaker][$awaybookmaker][] = [
                     'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
@@ -96,7 +94,7 @@ class Onexbet implements BookmakerInterface {
                 ];
             }
 
-            echo json_encode($data);
+            return json_encode($data);
         }
     }
 
