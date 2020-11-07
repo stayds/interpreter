@@ -82,6 +82,10 @@ class Onexbet implements BookmakerInterface {
                 //$games = ($item['PeriodName'] != "") ? $item['GroupName'].". ".$item['PeriodName'] : $item['GroupName'
 
                 //Calls method that queries the Club names API
+                $gt = $this->gamestypes(strtolower(trim($gtype)),$homebookmaker,$awaybookmaker,$this->code);
+
+                //Calls method that queries the Club names API
+                $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$this->code);
 
                 $data[$homebookmaker][$awaybookmaker][] = [
                     'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
