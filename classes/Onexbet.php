@@ -72,13 +72,15 @@ class Onexbet implements BookmakerInterface {
 
             foreach ($response as $key => $item) {
 
+                $gtype = $this->getTypes($item['GroupId'],$item['PeriodName']);
+
                 //Call method the formats the outcome as required
-                $outcomes = $this->outcome($item['GroupName'], $item['MarketName'], $item['Opp1'], $item['Opp2'], $item['Param']);
+                $outcomes = $this->outcome($gtype, $item['MarketName'], $item['Opp1'], $item['Opp2'], $item['Param']);
 
                 //Calls method that querries the  Games types API
-                $games = ($item['PeriodName'] != "") ? $item['GroupName'].". ".$item['PeriodName'] : $item['GroupName'];
+                //$games = ($item['PeriodName'] != "") ? $item['GroupName'].". ".$item['PeriodName'] : $item['GroupName'];
 
-                $gt = $this->gamestypes(strtolower(trim($games)),$homebookmaker,$awaybookmaker,$this->code);
+                $gt = $this->gamestypes(strtolower(trim($gtype)),$homebookmaker,$awaybookmaker,$this->code);
 
                 //Calls method that queries the Club names API
                 $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$this->code);
@@ -87,7 +89,7 @@ class Onexbet implements BookmakerInterface {
                     'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
                     'away' => (isset($cnames['error'])) ? $item['Opp2'] : $cnames['awayclub'],
                     'type' => $gt,
-                    "bmbtype"=> $games,
+                    "bmbtype"=> $gtype,
                     'outcome' => strtolower($outcomes),
                     'odd' => $item['Coef'],
                     'ovalue' => ($item['Param'] != 0) ? $item['Param'] : null,
@@ -100,7 +102,7 @@ class Onexbet implements BookmakerInterface {
 
     private function outcome($gametype,$market,$home,$away,$param){
 
-        if($gametype == "1x2" || $gametype =="1x2. 1 Half" || $gametype == "1x2. 2 Half"){
+        if($gametype == '1x2' || $gametype =="1x2. 1 Half" || $gametype == "1x2. 2 Half"){
             $team = [$home=>'1','draw'=>'x',$away=>'2'];
             if ($market == $home || $market == $away){
                 return $team[$market];
@@ -429,5 +431,50 @@ class Onexbet implements BookmakerInterface {
 
     }
 
+    private function getTypes($groupid, $period){
 
+        $types = [
+            "1" => "1x2",
+            "2" => "Handicap",
+            "8" => "Double Chance",
+            "11" => "HT-FT",
+            "14" => "Even/Odd",
+            "15" => "Total 1",
+            "62" => "Total 2",
+            "19" => "Both Teams To Score",
+            "17" => "Total",
+            "18" => "Scores In Each Half",
+            "32" => "Goal In Both Halves",
+            "43" => "Team 1 To Win Either Half",
+            "44" => "Team 2 To Win Either Half",
+            "100" => "To Qualify",
+            "91" => "Individual Total 1 Even/Odd",
+            "92" => "Individual Total 2 Even/Odd",
+            "99" => "Asian Total",
+            "2854" => "Asian Handicap",
+            "27" => "European Handicap",
+            "8863" => "Correct Score (17Way)",
+            "136" => "Correct Score",
+            "154" => "Last Goal",
+            "2418" => "To Keep Clean Sheet",
+            "2422" => "Team 1 Scores In Halves",
+            "2424" => "Team 2 Scores In Halves",
+            "2876" => "Team 1 To Score N Goals",
+            "2878" => "Team 2 To Score N Goals",
+            "2866" => "Team 1 Win To Nil",
+            "2867" => "Team 2 Win To Nil",
+            "7142" => "1X2 + First Goal",
+            "2667" => "Draw + Total",
+            "9939" => "Exact Number",
+            "10047" => "Team 2 To Win Both Halves",
+            "10046" => "Team 1 To Win Both Halves",
+            "8427" => "Asian Team Total 1",
+            "8429" => "Asian Team Total 2",
+        ];
+
+        if(isset($types[$groupid]) && $period != ""){
+            return $types[$groupid].". ".$period;
+        }
+        return $types[$groupid];
+    }
 }
