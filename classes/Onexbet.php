@@ -26,7 +26,6 @@ class Onexbet implements BookmakerInterface {
      * @return |null
      */
     public function callBookMaker($code) {
-        $this->code = $code;
         curl_setopt_array($this->connect,[
             CURLOPT_URL => $this->url,
             CURLOPT_RETURNTRANSFER => true,
@@ -36,7 +35,7 @@ class Onexbet implements BookmakerInterface {
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => '{"Guid":"'.$this->code.'","Lng":"en","partner":159}',
+            CURLOPT_POSTFIELDS => '{"Guid":"'.$code.'","Lng":"en","partner":159}',
             CURLOPT_HTTPHEADER => array(
                 "Accept:  application/json, text/plain, */*",
                 "Accept-Language:  en-US,en;q=0.5",
@@ -72,26 +71,25 @@ class Onexbet implements BookmakerInterface {
         if (!is_null($response)) {
 
             foreach ($response as $key => $item) {
-
+                //get game types
                 $gtype = $this->getTypes($item['GroupId'],$item['PeriodName']);
-
-                //Call method the formats the outcome as required
-                $outcomes = $this->outcome($gtype, $item['MarketName'], $item['Opp1'], $item['Opp2'], $item['Param']);
-
-                //Calls method that querries the  Games types API
-                //$games = ($item['PeriodName'] != "") ? $item['GroupName'].". ".$item['PeriodName'] : $item['GroupName'
+                $games = ($item['PeriodName'] != "") ? $item['GroupName'].". ".$item['PeriodName'] : $item['GroupName'];
+                //based on the two option of getting the game types select one
+                $g = ($games != "") ? $games : $gtype;
 
                 //Calls method that queries the Club names API
-                $gt = $this->gamestypes(strtolower(trim($gtype)),$homebookmaker,$awaybookmaker,$this->code);
+                $gt = $this->gamestypes(strtolower(trim($g)),$homebookmaker,$awaybookmaker,$code);
+                $outcomes = $this->outcome($g, $item['MarketName'], $item['Opp1'], $item['Opp2'], $item['Param']);
 
                 //Calls method that queries the Club names API
-                $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$this->code);
+                $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$code);
 
                 $data[$homebookmaker][$awaybookmaker][] = [
+                    'sport' =>strtolower($item['SportName']),
                     'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
                     'away' => (isset($cnames['error'])) ? $item['Opp2'] : $cnames['awayclub'],
                     'type' => $gt,
-                    "bmbtype"=> $gtype,
+                    "bmbtype"=> $g,
                     'outcome' => strtolower($outcomes),
                     'odd' => $item['Coef'],
                     'ovalue' => ($item['Param'] != 0) ? $item['Param'] : null,
@@ -145,7 +143,7 @@ class Onexbet implements BookmakerInterface {
             $data = ["Total Even - Yes"=>"even","Total Even - No"=>"odd" ];
             return $data[$market];
         }
-        elseif ($gametype == "Both Teams To Score" || $gametype == "Both Teams To Score. 1 Half" || $gametype == "Red Card"
+        elseif ($gametype == "Both Teams To Score" || $gametype == "Both Teams To Score. 1 Half" || $gametype == "Both Teams To Score. 2 Half"  || $gametype == "Red Card"
             || $gametype == "Own Goal" || $gametype == "Multi Goal" || $gametype == "Goal In Both Halves" || $gametype == "Penalty Awarded" ||
             $gametype == "Penalty Awarded And Sending Off" || $gametype == "Goal After Corner" || $gametype == "Draw In At Least One Half"
             || $gametype == "Team 2 To Win Either Half" || $gametype == "Team 1 To Win Either Half" || $gametype == "Both Halves To Be Won By Different Teams"
@@ -157,6 +155,15 @@ class Onexbet implements BookmakerInterface {
             $data = explode("-", $market);
             $item = trim(strtolower($data[count($data)-1]));
             return $item;
+        }
+        elseif ($gametype == "Both Teams To Score + Double Chance" || $gametype == "Both Teams To Score + Double Chance. 1 Half" || $gametype == "Both Teams To Score + Double Chance. 2 Half"){
+            $data = [
+                "At Least One Team Not To Score And 1X - Yes"=>"1/x:yes",
+                "At Least One Team Not To Score And 1X - No"=>"1/x:no",
+                "At Least One Team Not To Score And 2X - Yes"=>"1/x:yes",
+                "At Least One Team Not To Score And 2X - No"=>"1/x:no",
+            ];
+            return $data[$market];
         }
         elseif ($gametype == "Handicap" || $gametype == "Asian Handicap" || $gametype =="Handicap. 1 Half"
             || $gametype == "Handicap. 2 Half" || $gametype == "Asian Handicap. 1 Half" || $gametype == "Asian Handicap. 2 Half" ){
@@ -400,7 +407,8 @@ class Onexbet implements BookmakerInterface {
         $response = curl_exec($this->connect);
 
         $data = json_decode($response, true);
-        if($data['Error']){
+
+        if(isset($data['Error'])){
             return null;
         }
         else{
@@ -472,11 +480,14 @@ class Onexbet implements BookmakerInterface {
             "10046" => "Team 1 To Win Both Halves",
             "8427" => "Asian Team Total 1",
             "8429" => "Asian Team Total 2",
+            "2668"=>"Double Chance + Total",
+            "2440"=>"Team Goals"
         ];
 
         if(isset($types[$groupid]) && $period != ""){
             return $types[$groupid].". ".$period;
         }
+
         return $types[$groupid];
     }
 }
