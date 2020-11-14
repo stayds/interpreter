@@ -86,6 +86,7 @@ class Onexbet implements BookmakerInterface {
 
                 $data[$homebookmaker][$awaybookmaker][] = [
                     'sport' =>strtolower($item['SportName']),
+                    'league'=>$item['Liga'],
                     'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
                     'away' => (isset($cnames['error'])) ? $item['Opp2'] : $cnames['awayclub'],
                     'type' => $gt,
