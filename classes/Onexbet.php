@@ -193,7 +193,7 @@ class Onexbet implements BookmakerInterface {
             $rec = trim(substr($market,strpos($market,")") + 1));
             return $team[$rec].":".$out;
         }
-        elseif ($gametype == "Team 2, Multi Goal" || $gametype =="Team 2, Multi Goal"){
+        elseif ($gametype == "Team 2, Multi Goal" || $gametype =="Team 1, Multi Goal"){
             $team = [$home=>'1',$away=>'2'];
             if(strpos($market,$home) || strpos($market,$away)) {
                 return $team[$home];
@@ -314,12 +314,12 @@ class Onexbet implements BookmakerInterface {
             return $param."".$sign;
         }
         elseif ($gametype == "1X2 + First Goal"){
-            $outcome = ["Team $home To Score First And W $home"=>"1/1",
-                        "Team $away To Score First And W $home"=>"2/1",
-                        "Team $home To Score First And W $away"=>"1/2",
-                        "Team $away To Score First And W $away"=>"2/2",
-                        "Team $home To Score First And A Draw"=>"1/x",
-                        "Team $away To Score First And A Draw"=>"2/x"];
+            $outcome = ["Team $home To Score First And W $home"=>"hgoal:1",
+                        "Team $away To Score First And W $home"=>"agoal:1",
+                        "Team $home To Score First And W $away"=>"hgoal:2",
+                        "Team $away To Score First And W $away"=>"agoal:2",
+                        "Team $home To Score First And A Draw"=>"hgoal:x",
+                        "Team $away To Score First And A Draw"=>"agoal:x"];
             return $outcome[$market];
         }
         elseif($gametype == "Score During The Match"){
