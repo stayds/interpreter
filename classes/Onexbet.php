@@ -1,5 +1,6 @@
 <?php
 include_once './interfaces/BookmakerInterface.php';
+include_once './classes/StdClubChangerClass.php';
 /**
  * Onexbet Class interprete Onexbet code to games and outcome  and return response in json format
  */
@@ -90,22 +91,26 @@ class Onexbet implements BookmakerInterface {
                 $outcomes = $this->outcome($groupname, $item['MarketName'], $item['Opp1'], $item['Opp2'], $item['Param']);
 
                 //Calls method that queries the Club names API
-                $cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$code);
+                //$cnames = $this->clubnames($homebookmaker,$awaybookmaker,$item['Opp1'],$item['Opp2'],$code);
 
                 $data[$homebookmaker][$awaybookmaker][] = [
                     'sport' =>strtolower($item['SportName']),
                     'league'=>$item['Liga'],
-                    'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
-                    'away' => (isset($cnames['error'])) ? $item['Opp2'] : $cnames['awayclub'],
-                    'type' => $gt,
-                    "bmbtype"=> $groupname,
+                     // 'home' => (isset($cnames['error'])) ? $item['Opp1'] : $cnames['homeclub'],
+                     // 'away' => (isset($cnames['error'])) ? $item['Opp2'] : $cnames['awayclub'],
+                    'home' => $item['Opp1'],
+                    'away' => $item['Opp2'],
+                    //'type' => $gt,
+                    'type'=> $groupname,
+                    'bmbtype'=> $groupname,
                     'outcome' => strtolower($outcomes),
                     'odd' => $item['Coef'],
                     'ovalue' => ($item['Param'] != 0) ? $item['Param'] : null,
                 ];
             }
 
-            return json_encode($data);
+            //return json_encode($data);
+            return StdClubChangerClass::changeClubandStd($data,$code);
         }
     }
 
@@ -435,7 +440,7 @@ class Onexbet implements BookmakerInterface {
         elseif ($gametype == "Correct Score - Group Bet"){
             $data = str_replace("Correct Score ","",str_replace("- Yes","" ,$market));
             $datax = str_replace("-",":",str_replace(" Or ","/", $data));
-            return $datax;
+            return trim($datax);
         }
         elseif ($gametype == "Total. Cards") {
             $data = explode(" ", $market);
