@@ -660,7 +660,8 @@ class Onexbet implements BookmakerInterface {
             "90" => "Will There Be Overtime? - Yes/No",
             "2244" => "First Half / Full-time",
             "109" => "Sets Handicap",
-            "2744"=>"Set / Match"
+            "2744"=>"Set / Match",
+            "176"=>"Highest Scoring Period"
 
         ];
 
